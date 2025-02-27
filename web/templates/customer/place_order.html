@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Place Order{% endblock %}
+
+{% block sidebar %}
+<h5 class="text-light px-3 mb-3">Customer Menu</h5>
+<a href="{{ url_for('customer_dashboard') }}">
+    <i class="fas fa-chart-line me-2"></i>Dashboard
+</a>
+<a href="{{ url_for('customer_orders') }}">
+    <i class="fas fa-shopping-cart me-2"></i>My Orders
+</a>
+<a href="{{ url_for('place_order') }}" class="active">
+    <i class="fas fa-plus-circle me-2"></i>Place Order
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Place New Order</h2>
+            <p class="text-muted">Select products and specify delivery details</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Product Selection -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Available Products</h5>
+                    <div class="row">
+                        <!-- Apple Product Card -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Apples">
+                                <div class="card-body">
+                                    <h5 class="card-title">Fresh Apples</h5>
+                                    <div class="mb-3">
+                                        <span class="badge bg-success">In Stock</span>
+                                        <span class="badge bg-info">Premium Quality</span>
+                                    </div>
+                                    <p class="card-text">
+                                        Fresh apples from local farms. Ideal for both direct consumption and processing.
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <small class="text-muted">Available:</small>
+                                            <br>
+                                            <strong>500 kg</strong>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted">Ripeness:</small>
+                                            <br>
+                                            <strong class="text-success">Optimal</strong>
+                                        </div>
+                                    </div>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="apple-quantity" 
+                                               placeholder="Quantity (kg)" min="1" max="500">
+                                        <button class="btn btn-primary" onclick="addToOrder('apple')">
+                                            <i class="fas fa-plus me-1"></i>Add
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Orange Product Card -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Oranges">
+                                <div class="card-body">
+                                    <h5 class="card-title">Fresh Oranges</h5>
+                                    <div class="mb-3">
+                                        <span class="badge bg-success">In Stock</span>
+                                        <span class="badge bg-info">Premium Quality</span>
+                                    </div>
+                                    <p class="card-text">
+                                        Sweet and juicy oranges, perfect for juice production or direct consumption.
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <small class="text-muted">Available:</small>
+                                            <br>
+                                            <strong>300 kg</strong>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted">Ripeness:</small>
+                                            <br>
+                                            <strong class="text-success">Optimal</strong>
+                                        </div>
+                                    </div>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="orange-quantity" 
+                                               placeholder="Quantity (kg)" min="1" max="300">
+                                        <button class="btn btn-primary" onclick="addToOrder('orange')">
+                                            <i class="fas fa-plus me-1"></i>Add
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Order Summary</h5>
+                    <form id="order-form" method="POST" action="{{ url_for('place_order') }}">
+                        <!-- Selected Items -->
+                        <div id="selected-items" class="mb-4">
+                            <p class="text-muted text-center" id="no-items-message">
+                                No items selected yet
+                            </p>
+                        </div>
+
+                        <hr>
+
+                        <!-- Delivery Details -->
+                        <h6 class="mb-3">Delivery Details</h6>
+                        <div class="mb-3">
+                            <label for="delivery-address" class="form-label">Delivery Address</label>
+                            <textarea class="form-control" id="delivery-address" name="delivery_address" 
+                                    rows="3" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="delivery-date" class="form-label">Preferred Delivery Date</label>
+                            <input type="date" class="form-control" id="delivery-date" name="delivery_date" 
+                                   required min="{{ tomorrow_date }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Additional Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" 
+                                    rows="2"></textarea>
+                        </div>
+
+                        <!-- Hidden inputs for selected items -->
+                        <input type="hidden" id="order-items" name="order_items" value="">
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary" id="submit-order" disabled>
+                                <i class="fas fa-check me-2"></i>Place Order
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+let selectedItems = {};
+
+function addToOrder(fruit) {
+    const quantityInput = document.getElementById(`${fruit}-quantity`);
+    const quantity = parseInt(quantityInput.value);
+    
+    if (quantity > 0) {
+        selectedItems[fruit] = quantity;
+        updateOrderSummary();
+        quantityInput.value = '';
+    }
+}
+
+function updateOrderSummary() {
+    const selectedItemsDiv = document.getElementById('selected-items');
+    const noItemsMessage = document.getElementById('no-items-message');
+    const submitButton = document.getElementById('submit-order');
+    const orderItemsInput = document.getElementById('order-items');
+    
+    if (Object.keys(selectedItems).length === 0) {
+        noItemsMessage.style.display = 'block';
+        submitButton.disabled = true;
+        selectedItemsDiv.innerHTML = noItemsMessage.outerHTML;
+    } else {
+        noItemsMessage.style.display = 'none';
+        submitButton.disabled = false;
+        
+        let html = '<div class="list-group">';
+        for (const [fruit, quantity] of Object.entries(selectedItems)) {
+            html += `
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0">${fruit.charAt(0).toUpperCase() + fruit.slice(1)}</h6>
+                        <small class="text-muted">${quantity} kg</small>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeItem('${fruit}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        }
+        html += '</div>';
+        
+        selectedItemsDiv.innerHTML = html;
+        orderItemsInput.value = JSON.stringify(selectedItems);
+    }
+}
+
+function removeItem(fruit) {
+    delete selectedItems[fruit];
+    updateOrderSummary();
+}
+
+// Set minimum date for delivery to tomorrow
+document.addEventListener('DOMContentLoaded', function() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('delivery-date').min = tomorrow.toISOString().split('T')[0];
+});
+</script>
+{% endblock %}
+{% endblock %}

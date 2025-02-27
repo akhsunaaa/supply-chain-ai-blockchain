@@ -1,0 +1,390 @@
+{% extends "base.html" %}
+
+{% block title %}Sensor Monitoring{% endblock %}
+
+{% block sidebar %}
+<h5 class="text-light px-3 mb-3">Farmer Menu</h5>
+<a href="{{ url_for('farmer_dashboard') }}">
+    <i class="fas fa-chart-line me-2"></i>Dashboard
+</a>
+<a href="{{ url_for('farmer_inventory') }}">
+    <i class="fas fa-box me-2"></i>Inventory
+</a>
+<a href="{{ url_for('farmer_sensors') }}" class="active">
+    <i class="fas fa-microchip me-2"></i>Sensors
+</a>
+<a href="{{ url_for('farmer_orders') }}">
+    <i class="fas fa-shopping-cart me-2"></i>Orders
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Sensor Monitoring</h2>
+            <p class="text-muted">Monitor all warehouse and crate sensors</p>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSensorModal">
+                <i class="fas fa-plus me-2"></i>Add New Sensor
+            </button>
+        </div>
+    </div>
+
+    <!-- Sensor Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Sensors</h5>
+                    <h3 class="mb-0">24</h3>
+                    <small>Active sensors</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Warehouse Sensors</h5>
+                    <h3 class="mb-0">8</h3>
+                    <small>All operational</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Crate Sensors</h5>
+                    <h3 class="mb-0">16</h3>
+                    <small>15 operational</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Alerts</h5>
+                    <h3 class="mb-0">2</h3>
+                    <small>Require attention</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warehouse Sensors -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Warehouse Sensors</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Sensor ID</th>
+                            <th>Location</th>
+                            <th>Temperature</th>
+                            <th>Humidity</th>
+                            <th>Status</th>
+                            <th>Last Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>WH001-S1</td>
+                            <td>Warehouse A - Section 1</td>
+                            <td>
+                                <span class="text-success">4°C</span>
+                                <i class="fas fa-arrow-down text-success"></i>
+                            </td>
+                            <td>
+                                <span class="text-success">65%</span>
+                                <i class="fas fa-equals text-muted"></i>
+                            </td>
+                            <td><span class="badge bg-success">Operational</span></td>
+                            <td>2 minutes ago</td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="viewSensorHistory('WH001-S1')">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>WH001-S2</td>
+                            <td>Warehouse A - Section 2</td>
+                            <td>
+                                <span class="text-warning">6°C</span>
+                                <i class="fas fa-arrow-up text-warning"></i>
+                            </td>
+                            <td>
+                                <span class="text-success">62%</span>
+                                <i class="fas fa-equals text-muted"></i>
+                            </td>
+                            <td><span class="badge bg-warning">Check Required</span></td>
+                            <td>5 minutes ago</td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="viewSensorHistory('WH001-S2')">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Crate Sensors -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Crate Sensors</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Sensor ID</th>
+                            <th>Crate ID</th>
+                            <th>Temperature</th>
+                            <th>Humidity</th>
+                            <th>Ethylene</th>
+                            <th>Status</th>
+                            <th>Last Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CR001-S1</td>
+                            <td>CRATE001</td>
+                            <td>
+                                <span class="text-success">3°C</span>
+                                <i class="fas fa-equals text-muted"></i>
+                            </td>
+                            <td>
+                                <span class="text-success">68%</span>
+                                <i class="fas fa-equals text-muted"></i>
+                            </td>
+                            <td>
+                                <span class="text-success">0.5 ppm</span>
+                            </td>
+                            <td><span class="badge bg-success">Operational</span></td>
+                            <td>1 minute ago</td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="viewSensorHistory('CR001-S1')">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>CR002-S1</td>
+                            <td>CRATE002</td>
+                            <td>
+                                <span class="text-danger">8°C</span>
+                                <i class="fas fa-arrow-up text-danger"></i>
+                            </td>
+                            <td>
+                                <span class="text-warning">75%</span>
+                                <i class="fas fa-arrow-up text-warning"></i>
+                            </td>
+                            <td>
+                                <span class="text-warning">1.2 ppm</span>
+                            </td>
+                            <td><span class="badge bg-danger">Alert</span></td>
+                            <td>3 minutes ago</td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="viewSensorHistory('CR002-S1')">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sensor Analytics -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Temperature Trends</h5>
+                    <canvas id="temperatureTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Humidity Trends</h5>
+                    <canvas id="humidityTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add New Sensor Modal -->
+<div class="modal fade" id="addSensorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Sensor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newSensorForm">
+                    <div class="mb-3">
+                        <label for="sensorType" class="form-label">Sensor Type</label>
+                        <select class="form-select" id="sensorType" required>
+                            <option value="">Select sensor type</option>
+                            <option value="warehouse">Warehouse Sensor</option>
+                            <option value="crate">Crate Sensor</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location/Crate ID</label>
+                        <input type="text" class="form-control" id="location" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveNewSensor()">Add Sensor</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sensor History Modal -->
+<div class="modal fade" id="sensorHistoryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sensor History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <canvas id="sensorHistoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Temperature Trend Chart
+    const tempCtx = document.getElementById('temperatureTrendChart').getContext('2d');
+    new Chart(tempCtx, {
+        type: 'line',
+        data: {
+            labels: ['6h ago', '5h ago', '4h ago', '3h ago', '2h ago', '1h ago', 'Now'],
+            datasets: [{
+                label: 'Warehouse A',
+                data: [4, 4.2, 4.1, 4.3, 4.2, 4, 4.1],
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            },
+            {
+                label: 'Warehouse B',
+                data: [3.8, 3.9, 4.0, 4.1, 4.2, 4.1, 4.0],
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+
+    // Initialize Humidity Trend Chart
+    const humCtx = document.getElementById('humidityTrendChart').getContext('2d');
+    new Chart(humCtx, {
+        type: 'line',
+        data: {
+            labels: ['6h ago', '5h ago', '4h ago', '3h ago', '2h ago', '1h ago', 'Now'],
+            datasets: [{
+                label: 'Warehouse A',
+                data: [65, 64, 66, 65, 63, 65, 65],
+                borderColor: 'rgb(54, 162, 235)',
+                tension: 0.1
+            },
+            {
+                label: 'Warehouse B',
+                data: [62, 63, 62, 64, 63, 62, 62],
+                borderColor: 'rgb(255, 206, 86)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+});
+
+function viewSensorHistory(sensorId) {
+    // Show sensor history modal with detailed charts
+    const modal = new bootstrap.Modal(document.getElementById('sensorHistoryModal'));
+    modal.show();
+    
+    // Initialize sensor history chart
+    const historyCtx = document.getElementById('sensorHistoryChart').getContext('2d');
+    new Chart(historyCtx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 24}, (_, i) => `${23-i}h ago`),
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: Array.from({length: 24}, () => Math.random() * 2 + 3),
+                borderColor: 'rgb(75, 192, 192)',
+                yAxisID: 'y'
+            },
+            {
+                label: 'Humidity (%)',
+                data: Array.from({length: 24}, () => Math.random() * 10 + 60),
+                borderColor: 'rgb(54, 162, 235)',
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+function saveNewSensor() {
+    // Implement new sensor saving
+    console.log('Saving new sensor');
+    $('#addSensorModal').modal('hide');
+}
+</script>
+{% endblock %}
+{% endblock %}

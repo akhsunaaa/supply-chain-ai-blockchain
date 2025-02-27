@@ -1,0 +1,352 @@
+{% extends "base.html" %}
+
+{% block title %}Orders Management{% endblock %}
+
+{% block sidebar %}
+<h5 class="text-light px-3 mb-3">Farmer Menu</h5>
+<a href="{{ url_for('farmer_dashboard') }}">
+    <i class="fas fa-chart-line me-2"></i>Dashboard
+</a>
+<a href="{{ url_for('farmer_inventory') }}">
+    <i class="fas fa-box me-2"></i>Inventory
+</a>
+<a href="{{ url_for('farmer_sensors') }}">
+    <i class="fas fa-microchip me-2"></i>Sensors
+</a>
+<a href="{{ url_for('farmer_orders') }}" class="active">
+    <i class="fas fa-shopping-cart me-2"></i>Orders
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Orders Management</h2>
+            <p class="text-muted">View and manage customer orders</p>
+        </div>
+    </div>
+
+    <!-- Order Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">New Orders</h5>
+                    <h3 class="mb-0">5</h3>
+                    <small>Pending approval</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">In Progress</h5>
+                    <h3 class="mb-0">8</h3>
+                    <small>Being processed</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">In Transit</h5>
+                    <h3 class="mb-0">3</h3>
+                    <small>Being delivered</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Completed</h5>
+                    <h3 class="mb-0">12</h3>
+                    <small>Last 7 days</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title mb-0">All Orders</h5>
+                <div class="d-flex gap-2">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="orderSearch" 
+                               placeholder="Search orders...">
+                    </div>
+                    <select class="form-select" style="width: auto;">
+                        <option value="all">All Status</option>
+                        <option value="new">New</option>
+                        <option value="processing">Processing</option>
+                        <option value="transit">In Transit</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Delivery Location</th>
+                            <th>Required By</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#ORD001</td>
+                            <td>John Doe</td>
+                            <td>
+                                <ul class="list-unstyled mb-0">
+                                    <li>Apples - 50kg</li>
+                                    <li>Oranges - 30kg</li>
+                                </ul>
+                            </td>
+                            <td>123 Customer St, City</td>
+                            <td>2024-01-20</td>
+                            <td>
+                                <span class="badge bg-warning">Pending Approval</span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-success" onclick="approveOrder('ORD001')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="rejectOrder('ORD001')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-info" onclick="viewOrderDetails('ORD001')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#ORD002</td>
+                            <td>Jane Smith</td>
+                            <td>
+                                <ul class="list-unstyled mb-0">
+                                    <li>Apples - 100kg</li>
+                                </ul>
+                            </td>
+                            <td>456 Business Ave, Town</td>
+                            <td>2024-01-22</td>
+                            <td>
+                                <span class="badge bg-primary">Processing</span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-success" onclick="markShipped('ORD002')">
+                                        <i class="fas fa-truck"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-info" onclick="viewOrderDetails('ORD002')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Analytics -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Orders by Status</h5>
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Daily Order Volume</h5>
+                    <canvas id="orderVolumeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Order Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Order Information</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Order ID:</th>
+                                <td>#ORD001</td>
+                            </tr>
+                            <tr>
+                                <th>Order Date:</th>
+                                <td>2024-01-15</td>
+                            </tr>
+                            <tr>
+                                <th>Required By:</th>
+                                <td>2024-01-20</td>
+                            </tr>
+                            <tr>
+                                <th>Status:</th>
+                                <td><span class="badge bg-warning">Pending Approval</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Customer Information</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Name:</th>
+                                <td>John Doe</td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td>john@example.com</td>
+                            </tr>
+                            <tr>
+                                <th>Phone:</th>
+                                <td>+1234567890</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h6>Order Items</h6>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Quantity</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Apples</td>
+                                    <td>50 kg</td>
+                                    <td><span class="badge bg-success">Available</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Oranges</td>
+                                    <td>30 kg</td>
+                                    <td><span class="badge bg-success">Available</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h6>Delivery Information</h6>
+                        <p><strong>Address:</strong> 123 Customer St, City, State 12345</p>
+                        <p><strong>Special Instructions:</strong> Please deliver during business hours</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" onclick="approveOrder('ORD001')">Approve Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Order Status Chart
+    const statusCtx = document.getElementById('orderStatusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'pie',
+        data: {
+            labels: ['New', 'Processing', 'In Transit', 'Completed'],
+            datasets: [{
+                data: [5, 8, 3, 12],
+                backgroundColor: [
+                    'rgba(255, 193, 7, 0.8)',
+                    'rgba(13, 110, 253, 0.8)',
+                    'rgba(23, 162, 184, 0.8)',
+                    'rgba(40, 167, 69, 0.8)'
+                ]
+            }]
+        }
+    });
+
+    // Initialize Order Volume Chart
+    const volumeCtx = document.getElementById('orderVolumeChart').getContext('2d');
+    new Chart(volumeCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Number of Orders',
+                data: [5, 8, 6, 9, 7, 4, 3],
+                backgroundColor: 'rgba(13, 110, 253, 0.8)'
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+});
+
+function approveOrder(orderId) {
+    if (confirm(`Are you sure you want to approve order ${orderId}?`)) {
+        // Implement order approval
+        console.log('Approving order:', orderId);
+    }
+}
+
+function rejectOrder(orderId) {
+    if (confirm(`Are you sure you want to reject order ${orderId}?`)) {
+        // Implement order rejection
+        console.log('Rejecting order:', orderId);
+    }
+}
+
+function markShipped(orderId) {
+    if (confirm(`Are you sure you want to mark order ${orderId} as shipped?`)) {
+        // Implement order shipping
+        console.log('Marking order as shipped:', orderId);
+    }
+}
+
+function viewOrderDetails(orderId) {
+    // Show order details modal
+    const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+    modal.show();
+}
+</script>
+{% endblock %}
+{% endblock %}

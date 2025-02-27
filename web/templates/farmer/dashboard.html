@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Farmer Dashboard{% endblock %}
+
+{% block sidebar %}
+<h5 class="text-light px-3 mb-3">Farmer Menu</h5>
+<a href="{{ url_for('farmer_dashboard') }}" class="active">
+    <i class="fas fa-chart-line me-2"></i>Dashboard
+</a>
+<a href="{{ url_for('farmer_inventory') }}">
+    <i class="fas fa-box me-2"></i>Inventory
+</a>
+<a href="{{ url_for('farmer_sensors') }}">
+    <i class="fas fa-microchip me-2"></i>Sensors
+</a>
+<a href="{{ url_for('farmer_orders') }}">
+    <i class="fas fa-shopping-cart me-2"></i>Orders
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Welcome, {{ user.username }}!</h2>
+            <p class="text-muted">Here's your supply chain overview</p>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-thermometer-half me-2"></i>Temperature
+                    </h5>
+                    <h3 class="mb-0">24°C</h3>
+                    <small>Warehouse Average</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-tint me-2"></i>Humidity
+                    </h5>
+                    <h3 class="mb-0">65%</h3>
+                    <small>Warehouse Average</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-box me-2"></i>Inventory
+                    </h5>
+                    <h3 class="mb-0">1,250 kg</h3>
+                    <small>Total Stock</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-truck me-2"></i>Pending Orders
+                    </h5>
+                    <h3 class="mb-0">8</h3>
+                    <small>To be shipped</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Temperature Trends</h5>
+                    <canvas id="temperatureChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Humidity Trends</h5>
+                    <canvas id="humidityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity and Alerts -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Activity</h5>
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">New order received</h6>
+                                <small>3 hours ago</small>
+                            </div>
+                            <p class="mb-1">Order #1234 - 100kg Apples</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Shipment completed</h6>
+                                <small>5 hours ago</small>
+                            </div>
+                            <p class="mb-1">Order #1230 delivered successfully</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Inventory update</h6>
+                                <small>Yesterday</small>
+                            </div>
+                            <p class="mb-1">Added 500kg of fresh oranges</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Alerts</h5>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        High temperature detected in Warehouse A
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Inventory running low on Bananas
+                    </div>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        All sensor systems operating normally
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Temperature Chart
+    const tempCtx = document.getElementById('temperatureChart').getContext('2d');
+    new Chart(tempCtx, {
+        type: 'line',
+        data: {
+            labels: ['6h ago', '5h ago', '4h ago', '3h ago', '2h ago', '1h ago', 'Now'],
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: [23, 24, 23.5, 24.5, 24, 23.8, 24],
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+
+    // Humidity Chart
+    const humCtx = document.getElementById('humidityChart').getContext('2d');
+    new Chart(humCtx, {
+        type: 'line',
+        data: {
+            labels: ['6h ago', '5h ago', '4h ago', '3h ago', '2h ago', '1h ago', 'Now'],
+            datasets: [{
+                label: 'Humidity (%)',
+                data: [65, 64, 66, 65, 63, 65, 65],
+                borderColor: 'rgb(54, 162, 235)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

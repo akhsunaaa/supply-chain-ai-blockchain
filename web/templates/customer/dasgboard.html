@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block sidebar %}
+<h5 class="text-light px-3 mb-3">Customer Menu</h5>
+<a href="{{ url_for('customer_dashboard') }}" class="active">
+    <i class="fas fa-chart-line me-2"></i>Dashboard
+</a>
+<a href="{{ url_for('customer_orders') }}">
+    <i class="fas fa-shopping-cart me-2"></i>My Orders
+</a>
+<a href="{{ url_for('place_order') }}">
+    <i class="fas fa-plus-circle me-2"></i>Place Order
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Welcome, {{ user.username }}!</h2>
+            <p class="text-muted">Track your orders and place new ones</p>
+        </div>
+        <div class="col-auto">
+            <a href="{{ url_for('place_order') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>New Order
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-shopping-cart me-2"></i>Active Orders
+                    </h5>
+                    <h3 class="mb-0">3</h3>
+                    <small>In Progress</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-check-circle me-2"></i>Completed Orders
+                    </h5>
+                    <h3 class="mb-0">12</h3>
+                    <small>Last 30 days</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-truck me-2"></i>In Transit
+                    </h5>
+                    <h3 class="mb-0">2</h3>
+                    <small>Currently Shipping</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders and Available Products -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Orders</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#2345</td>
+                                    <td>Apples</td>
+                                    <td>50 kg</td>
+                                    <td><span class="badge bg-warning">In Transit</span></td>
+                                    <td>
+                                        <a href="{{ url_for('track_order', order_id='2345') }}" class="btn btn-sm btn-primary">
+                                            Track
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>#2344</td>
+                                    <td>Oranges</td>
+                                    <td>30 kg</td>
+                                    <td><span class="badge bg-success">Delivered</span></td>
+                                    <td>
+                                        <a href="{{ url_for('track_order', order_id='2344') }}" class="btn btn-sm btn-primary">
+                                            Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Available Products</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <img src="https://via.placeholder.com/150" class="card-img-top" alt="Apples">
+                                <div class="card-body">
+                                    <h6 class="card-title">Fresh Apples</h6>
+                                    <p class="card-text">
+                                        <small class="text-muted">Available: 500 kg</small>
+                                    </p>
+                                    <a href="{{ url_for('place_order') }}" class="btn btn-sm btn-primary">Order Now</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <img src="https://via.placeholder.com/150" class="card-img-top" alt="Oranges">
+                                <div class="card-body">
+                                    <h6 class="card-title">Fresh Oranges</h6>
+                                    <p class="card-text">
+                                        <small class="text-muted">Available: 300 kg</small>
+                                    </p>
+                                    <a href="{{ url_for('place_order') }}" class="btn btn-sm btn-primary">Order Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Tracking Map -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Active Order Tracking</h5>
+                    <div id="map" style="height: 400px; background-color: #eee;">
+                        <!-- Map will be initialized here -->
+                        <div class="text-center py-5">
+                            <i class="fas fa-map-marked-alt fa-3x text-muted"></i>
+                            <p class="mt-3 text-muted">Map loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize map and tracking functionality here
+    // This is a placeholder for actual map implementation
+});
+</script>
+{% endblock %}
+{% endblock %}
