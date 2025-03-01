@@ -2,14 +2,14 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from functools import wraps
 import os
-from datetime import datetime
 import sys
+from datetime import datetime
 import logging
 
-# Add parent directory to Python path for imports
+# Add the parent directory to Python path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from web.models import user_manager
+from .models import user_manager
 from main import SupplyChainManager
 
 app = Flask(__name__)

@@ -7,12 +7,15 @@ This script initializes and runs the supply chain management system.
 """
 
 import os
+import sys
 import logging
-from supply_chain_management_system import (
-    SupplyChainManager,
-    app
-)
-from supply_chain_management_system.web.models import create_test_accounts
+
+# Add the parent directory to Python path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from web.app import app
+from web.models import create_test_accounts
+from main import SupplyChainManager
 
 def setup_logging():
     """Set up logging configuration"""
@@ -68,7 +71,7 @@ def main():
     """Main function to run the application"""
     # Set Flask environment variables
     os.environ['FLASK_ENV'] = 'development'
-    os.environ['FLASK_APP'] = 'supply_chain_management_system.web.app'
+    os.environ['FLASK_APP'] = 'web.app'
     
     # Initialize the system
     if not initialize_system():
