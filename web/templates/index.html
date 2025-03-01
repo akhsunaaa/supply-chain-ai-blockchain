@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Supply Chain Management System{% endblock %}
+
+{% block full_content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-4 mb-4">
+                <i class="fas fa-leaf text-success me-3"></i>
+                Supply Chain Management System
+            </h1>
+            <p class="lead mb-5">
+                AI-powered fruit supply chain management with real-time monitoring and blockchain integration
+            </p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-tractor fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Farmers</h5>
+                    <p class="card-text">Monitor your inventory, track sensor data, and manage orders</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-success">
+                        <i class="fas fa-sign-in-alt me-2"></i>Farmer Login
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-shopping-cart fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Customers</h5>
+                    <p class="card-text">Place orders and track your deliveries in real-time</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt me-2"></i>Customer Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-4">Key Features</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-3">
+                                    <i class="fas fa-microchip text-primary me-2"></i>
+                                    Real-time sensor monitoring
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-brain text-primary me-2"></i>
+                                    AI-powered ripeness analysis
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-route text-primary me-2"></i>
+                                    Intelligent route optimization
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-3">
+                                    <i class="fas fa-link text-primary me-2"></i>
+                                    Blockchain transparency
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-truck text-primary me-2"></i>
+                                    Real-time delivery tracking
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-chart-line text-primary me-2"></i>
+                                    Advanced analytics
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8 text-center">
+            <p class="text-muted">
+                New to our platform? 
+                <a href="{{ url_for('register') }}">Register here</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

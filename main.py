@@ -1,7 +1,6 @@
 # main.py
-from datetime import datetime, timedelta
-import json
 import logging
+from datetime import datetime, timedelta
 from typing import Dict, List
 
 from sensors.sensor_data import SensorNetwork
@@ -180,6 +179,42 @@ class SupplyChainManager:
             return report
         except Exception as e:
             self.logger.error(f"Failed to generate report: {str(e)}")
+            raise
+
+    def get_inventory_status(self) -> Dict:
+        """Get current inventory status across all warehouses"""
+        try:
+            sensor_data = self.process_sensor_data()
+            inventory_status = {
+                'timestamp': datetime.now().isoformat(),
+                'warehouses': {},
+                'total_stock': 0
+            }
+
+            for reading in sensor_data['warehouse_readings']:
+                warehouse_id = reading['location']
+                if warehouse_id not in inventory_status['warehouses']:
+                    inventory_status['warehouses'][warehouse_id] = {
+                        'temperature': reading['temperature'],
+                        'humidity': reading['humidity'],
+                        'stock': []
+                    }
+
+            for reading in sensor_data['crate_readings']:
+                warehouse_id = reading['location'].split('_')[0]
+                if warehouse_id in inventory_status['warehouses']:
+                    crate_info = {
+                        'crate_id': reading['crate_id'],
+                        'fruit_type': reading.get('fruit_type', 'unknown'),
+                        'quantity': reading.get('quantity', 0),
+                        'condition': self.analyze_fruit_conditions(reading, reading.get('fruit_type', 'unknown'))
+                    }
+                    inventory_status['warehouses'][warehouse_id]['stock'].append(crate_info)
+                    inventory_status['total_stock'] += crate_info['quantity']
+
+            return inventory_status
+        except Exception as e:
+            self.logger.error(f"Failed to get inventory status: {str(e)}")
             raise
 
 def main():
