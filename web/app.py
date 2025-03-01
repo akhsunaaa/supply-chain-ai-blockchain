@@ -178,7 +178,10 @@ def customer_orders():
 @role_required(['customer'])
 def track_order(order_id):
     try:
-        return render_template('customer/track_order.html', order_id=order_id)
+        shipment_history = supply_chain.get_shipment_history(order_id)
+        return render_template('customer/track_order.html', 
+                            order_id=order_id,
+                            shipment_history=shipment_history)
     except Exception as e:
         logger.error(f"Error tracking order: {str(e)}")
         flash('Error tracking order', 'error')

@@ -6,10 +6,9 @@ from typing import Dict, List
 from sensors.sensor_data import SensorNetwork
 from data_processing.ripeness_analysis import RipenessAnalyzer
 from logistics.route_optimizer import RouteOptimizer, Order, Vehicle
-from blockchain.integration import BlockchainIntegration
 
 class SupplyChainManager:
-    def __init__(self, blockchain_url: str = None):
+    def __init__(self):
         """Initialize the supply chain management system"""
         # Set up logging
         logging.basicConfig(
@@ -22,7 +21,10 @@ class SupplyChainManager:
         self.sensor_network = SensorNetwork()
         self.ripeness_analyzer = RipenessAnalyzer()
         self.route_optimizer = RouteOptimizer()
-        self.blockchain = BlockchainIntegration(blockchain_url)
+        
+        # Store orders and shipments in memory
+        self.orders = {}
+        self.shipments = {}
 
         self.logger.info("Supply Chain Management System initialized")
 
@@ -74,20 +76,6 @@ class SupplyChainManager:
             # Collect sensor data
             sensor_data = self.sensor_network.collect_all_data()
             self.logger.info("Collected sensor data from network")
-
-            # Record sensor data on blockchain
-            for reading in sensor_data['warehouse_readings']:
-                self.blockchain.record_sensor_data(
-                    reading['sensor_id'],
-                    reading
-                )
-
-            for reading in sensor_data['crate_readings']:
-                self.blockchain.record_sensor_data(
-                    reading['sensor_id'],
-                    reading
-                )
-
             return sensor_data
         except Exception as e:
             self.logger.error(f"Failed to process sensor data: {str(e)}")
@@ -97,13 +85,6 @@ class SupplyChainManager:
         """Analyze fruit conditions based on sensor data"""
         try:
             analysis = self.ripeness_analyzer.analyze_ripeness(sensor_data, fruit_type)
-            
-            # Record analysis on blockchain
-            self.blockchain.record_ripeness_analysis(
-                sensor_data.get('crate_id', 'unknown'),
-                analysis
-            )
-
             self.logger.info(f"Completed ripeness analysis for {fruit_type}")
             return analysis
         except Exception as e:
@@ -122,12 +103,7 @@ class SupplyChainManager:
             )
             
             self.route_optimizer.add_order(order)
-            
-            # Record order on blockchain
-            self.blockchain.create_shipment_record({
-                'order_id': order.order_id,
-                'details': order_data
-            })
+            self.orders[order.order_id] = order_data
             
             self.logger.info(f"Created new order: {order.order_id}")
             return order.order_id
@@ -139,15 +115,6 @@ class SupplyChainManager:
         """Optimize delivery routes based on current conditions"""
         try:
             routes = self.route_optimizer.optimize_routes(ripeness_data)
-            
-            # Record route plan on blockchain
-            for vehicle_id, route_info in routes['routes'].items():
-                self.blockchain.update_shipment_status(
-                    vehicle_id,
-                    'route_planned',
-                    {'route': route_info['route']}
-                )
-            
             self.logger.info("Completed route optimization")
             return routes
         except Exception as e:
@@ -165,20 +132,25 @@ class SupplyChainManager:
     def update_shipment_status(self, shipment_id: str, status: str, location: Dict = None) -> None:
         """Update the status of a shipment"""
         try:
-            self.blockchain.update_shipment_status(shipment_id, status, location)
+            if shipment_id not in self.shipments:
+                self.shipments[shipment_id] = []
+            
+            self.shipments[shipment_id].append({
+                'status': status,
+                'location': location,
+                'timestamp': datetime.now().isoformat()
+            })
             self.logger.info(f"Updated shipment {shipment_id} status to {status}")
         except Exception as e:
             self.logger.error(f"Failed to update shipment status: {str(e)}")
             raise
 
-    def generate_supply_chain_report(self, **kwargs) -> Dict:
-        """Generate a comprehensive supply chain report"""
+    def get_shipment_history(self, shipment_id: str) -> List[Dict]:
+        """Get the history of a shipment"""
         try:
-            report = self.blockchain.generate_supply_chain_report(**kwargs)
-            self.logger.info("Generated supply chain report")
-            return report
+            return self.shipments.get(shipment_id, [])
         except Exception as e:
-            self.logger.error(f"Failed to generate report: {str(e)}")
+            self.logger.error(f"Failed to get shipment history: {str(e)}")
             raise
 
     def get_inventory_status(self) -> Dict:
@@ -223,10 +195,10 @@ def main():
         # Initialize the system
         system = SupplyChainManager()
 
-        # Register a warehouse
+        # Register a warehouse (using a real address that can be geocoded)
         system.register_warehouse(
             "WH001",
-            "123 Warehouse St, Storage City, SC 12345"
+            "1600 Amphitheatre Parkway, Mountain View, CA 94043"  # Google HQ address as example
         )
 
         # Register a vehicle
@@ -250,10 +222,10 @@ def main():
             'apple'
         )
 
-        # Create an order
+        # Create an order (using a real address that can be geocoded)
         order_data = {
             'order_id': 'ORD001',
-            'destination': '456 Customer Ave, Buyer City, BC 67890',
+            'destination': '1 Apple Park Way, Cupertino, CA 95014',  # Apple HQ address as example
             'fruit_type': 'apple',
             'quantity': 100,  # kg
             'delivery_time': (datetime.now() + timedelta(days=2)).isoformat()
@@ -262,11 +234,6 @@ def main():
 
         # Optimize routes
         routes = system.optimize_delivery_routes(ripeness_data)
-
-        # Generate report
-        report = system.generate_supply_chain_report(
-            start_date=(datetime.now() - timedelta(days=1)).isoformat()
-        )
 
         print("Supply Chain Management System Demo Completed Successfully")
         return 0
